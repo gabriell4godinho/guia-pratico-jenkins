@@ -1,11 +1,15 @@
 pipeline {
     agent any
 
+    environment {
+        DOCKER_IMAGE = "gabriellagodinho/guia-pratico-jenkins:${env.BUILD_ID}"
+    }
+
     stages {
         stage('Build Docker Image') {
             steps {
                 script {
-                    def dockerapp = docker.build("gabriellagodinho/guia-pratico-jenkins:${env.BUILD_ID}", '-f ./src/Dockerfile ./src')
+                    docker.image = docker.build(env.DOCKER_IMAGE, '-f ./src/Dockerfile ./src')
                 }
             }
         }
@@ -14,8 +18,8 @@ pipeline {
             steps {
                 script {
                     docker.withRegistry('https://index.docker.io/v1/', 'dockerhub') {
-                        dockerapp.push('latest')
-                        dockerapp.push("${env.BUILD_ID}")
+                        docker.image.push('latest')
+                        docker.image.push(env.BUILD_ID)
                     }
                 }
             }
