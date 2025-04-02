@@ -9,7 +9,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    docker.image = docker.build(env.DOCKER_IMAGE, '-f ./src/Dockerfile ./src')
+                    dockerapp = docker.build(env.DOCKER_IMAGE, '-f ./src/Dockerfile ./src')
                 }
             }
         }
@@ -18,8 +18,8 @@ pipeline {
             steps {
                 script {
                     docker.withRegistry('https://index.docker.io/v1/', 'dockerhub') {
-                        docker.image.push('latest')
-                        docker.image.push(env.BUILD_ID)
+                        dockerapp.push('latest')
+                        dockerapp.push(env.BUILD_ID)
                     }
                 }
             }
