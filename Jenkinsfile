@@ -30,6 +30,7 @@ pipeline {
                 withKubeConfig([credentialsId: 'kubeconfig']) {
                     powershell '(Get-Content ./k8s/deployment.yaml) -replace "{{tag}}", "${env.BUILD_ID}" | Set-Content ./k8s/deployment.yaml'
                     bat 'kubectl apply --validate=false -f k8s/deployment.yaml'
+                    bat 'kubectl cluster-info dump --output-directory=cluster-info'
                 }
             }
         } 
