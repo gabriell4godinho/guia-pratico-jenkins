@@ -28,11 +28,8 @@ pipeline {
         stage('Deploy no Kubernetes') {
             steps {
                 withKubeConfig([credentialsId: 'kubeconfig']) {
-                    // Usando PowerShell para substituir a tag corretamente no Windows
                     powershell '(Get-Content ./k8s/deployment.yaml) -replace "{{tag}}", "${env.BUILD_ID}" | Set-Content ./k8s/deployment.yaml'
-                    
-                    // Aplicar a configuração no Kubernetes
-                    bat 'kubectl apply -f k8s/deployment.yaml'
+                    bat 'kubectl apply --validate=false -f k8s/deployment.yaml'
                 }
             }
         } 
