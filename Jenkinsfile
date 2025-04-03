@@ -28,11 +28,22 @@ pipeline {
         stage('Deploy no Kubernetes') {
             steps {
                 withKubeConfig([credentialsId: 'kubeconfig']) {
-                    powershell '(Get-Content ./k8s/deployment.yaml) -replace "{{tag}}", "${env.BUILD_ID}" | Set-Content ./k8s/deployment.yaml'
-                    bat 'kubectl apply --validate=false -f k8s/deployment.yaml'
-                    bat 'kubectl cluster-info dump --output-directory=cluster-info'
+                    script {
+                        // Substituição segura no Windows
+                        def tag = env.BUILD_ID
+                        def deploymentFile = 'k8s/deployment.yaml'
+
+                        bat "powershell -Command \"(Get-Content ${deploymentFile}) -replace '\\{\\{tag\\}\\}', '${tag}' | Set-Content ${deploymentFile}\""
+
+                        bat 'kubectl cluster-info'
+
+                        bat 'kubectl apply --validate=false -f k8s/deployment.yaml'
+
+                        bat 'kubectl cluster-info dump --output-directory=cluster-info'
+                    }
                 }
             }
         } 
     }
 }
+
